@@ -1,4 +1,5 @@
 import pygame
+import math
 from player import Player
 from game import Game
 pygame.init()
@@ -11,6 +12,24 @@ screen = pygame.display.set_mode((1080,720)) #la taille de la fenetre
 
 #importer la background
 background =pygame.image.load("assets/bg.jpg")
+
+#importer charger la baniere
+banner = pygame.image.load("assets/banner.png")
+    #redimentioner la banniere
+banner = pygame.transform.scale(banner,(500,500))
+    #assiotiation a un rectangle
+banner_rect = banner.get_rect()
+    #math.ceil arondir la valeur car probleme avec float
+banner_rect.x = math.ceil(screen.get_width() /4)
+
+
+
+#importer charger notre boutton pour lancer la partie
+play_button = pygame.image.load("assets/button.png")
+play_button = pygame.transform.scale(play_button,(400,150))
+play_button_rect = play_button.get_rect()
+play_button_rect.x = math.ceil(screen.get_width() /3.33)
+play_button_rect.y = math.ceil(screen.get_height() / 2 )
 
 
 #chager le jeu
@@ -28,35 +47,15 @@ while running:  #boucle de jeu
     #appliquer l'arriere plan du jeu
     screen.blit(background,(0,-200))
 
-    # appliquer l'image du joeur
-    screen.blit(game.player.image, game.player.rect)
-
-    #actualiser la barre devie du joueur
-    game.player.update_health_bar(screen)
-
-    #recuper les projectiles du joueur
-    for projectile in game.player.all_projectiles:
-        projectile.move()
-
-    # recuper les monstres du jeu
-    for  monster in game.all_monster:
-        monster.forward()
-        monster.update_health_bar(screen)
-
-
-
-    # appliquer l'image des projectile
-    game.player.all_projectiles.draw(screen) #.draw sert a mettre sur l'ecran l'ensemeble de element du groupe
-
-    # aplliquer les images des projectiles
-    game.all_monster.draw(screen)
-
-    if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x + game.player.rect.width < screen.get_width():
-        game.player.move_right()
-    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 0:
-        game.player.move_left()
-
-    print((game.player.rect.x))
+    #verifier si notre jeu à commencé
+    if game.is_playing:
+        # declenccher les intructions de la partie
+        game.update(screen)
+    #verifier si notre jeu n'a pas commencé
+    else:
+        # ajouter mon ecran d'acceuil l
+        screen.blit(play_button, play_button_rect)
+        screen.blit(banner,banner_rect)
 
 
     #mettre à jour l'ecran
@@ -79,6 +78,12 @@ while running:  #boucle de jeu
 
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            #verifier si la souris est en collision avec le button
+            if play_button_rect.collidepoint(event.pos):
+                print("ouiii")
+                game.start()
 
     clock.tick(60)
 
